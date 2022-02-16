@@ -1,79 +1,3 @@
-*mvn清理命令：for /r %i in (*.lastUpdated) do del %i
-
-*idea清除缓存文件：删除C:\Users\xxx\.IntelliJIdeaxxxx.x\system下的caches文件夹
-
-*gradle调用maven离线仓库：
-
-1、配置build.gradle：
-
-		repositories {
-			mavenLocal() //直接使用本地maven仓库
-			maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
-		}
-		
-2、使用mavenLocal() 时Gradle默认会按以下顺序去查找本地的maven仓库：
-
-	${USER_HOME}/.m2/settings.xml >> M2_HOME/conf/settings.xml >> ${USER_HOME}/.m2/repository
-	
-	（注意，maven环境变量要加入M2_HOME， 配置环境变量时很多时候都是只配置MAVEN_HOME或者直接在path中加入bin路径了，导致mavenLocal无法生效）
-
-3、如果本地没有相关jar包，gradle会下载到${USER_HOME}/.gradle文件夹下，若想让gradle下载到指定文件夹，配置GRADLE_USER_HOME环境变量。
-
-
-
-*node.js相关：
-	
-1.npm可使用国内阿里的源来替代默认国外的源：
-	npm install -g cnpm --registry=https://registry.npm.taobao.org	*注1
-继而使用cnpm(中国版npm)替代npm执行命令；
-
-2.也可使用yarn替代npm（更快）:
-	npm install -g yarn --registry=https://registry.npm.taobao.org
-	或者
-	npm install -g yarn（如果执行过注1或者注2则执行这一句就够了）
-	yarn config set registry https://registry.npm.taobao.org -g
-	yarn config set sass_binary_site http://cdn.npm.taobao.org/dist/node-sass -g
-	
-常用命令对比：
-NPM							YAR
-npm init					yarn init				初始化				
-npm install					yarn install            默认安装依赖		
-npm install xxxx -save		yarn add xxxx           安装某个依赖并保存
-npm install -g xxxx			yarn global add xxxx    安装全局依赖		
-npm uninstall xxxx -save	yarn remove xxxx        移除依赖			
-npm update 					yarn upgrade xxxx       更新依赖			
-npm run						yarn run                运行指令			
-
-
-3.使用cnpm/npm config ls查看配置信息，
-可查看使用的哪个源，如果要切换源可使用
-	cnpm/npm set registry https://registry.npm.taobao.org/ -g	*注2
-也可以使用源管理器nrm:
-	cnpm/npm i nrm -g
-	等同于
-	cnpm/npm install -g nrm
-
-nrm ls #查看可选源下载路径(带*即为当前使用源)
-nrm current #查看当前使用包
-nrm use "registryName" #切换源
-nrm add "registryName" "url" #添加源
-nrm del "registryName" #删除源
-nrm test "registryName" #测试源速度
-
-*注：执行命令报错则打开nrm安装路径（\node_global\node_modules\nrm）下的cli.js文件做如下改动：
-//const NRMRC = path.join(process.env.HOME, '.nrmrc'); (删除)
-const NRMRC = path.join(process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'], '.nrmrc');
-
-
-
-*vue相关：
-控制显隐的v-if与v-show：一般来说，v-if有更高的切换消耗，而v-show有更高的初始渲染消耗。因此，如果需要频繁切换，则使用v-show更好
-
-	v-if：支持<template>语法，可以根据表达式的值在DOM中生成或移除一个元素。
-	v-show：不支持<template>语法，可以根据表达式的值来显示或者隐藏HTML元素。当v-show赋值为false时，元素被隐藏，此时查看代码时，该元素上会多一个内联样式style=“display:none”。
-
-
-
 *常用linux命令：
 
 pwd #显示当前工作目录
@@ -88,8 +12,8 @@ eg：
 [xxx@server-7f350f25-62e5-4f3c-a6cc-a60a89439573 ~]$ sudo cd /sys/xxx/xxx
 sudo: cd: command not found
 
-这种情况，没有root账户的密码，执行该命令的办法就是使用sudo获得root shell 的权限，然后在root shell中执行该命令。
-进入root shell很简单，输入sudo bash确认本用户的密码即可（如果/etc/sudoers里配置了无密码使用sudo，就不需要进入密码），此时你会发现命令提示符显示当前 root。一旦获得root shell，你就可以执行任何命令而不需要在每条命令前输入sudo了。
+这种情况，没有root账户的密码，执行该命令的办法就是使用sudo获得root shell的权限，然后在root shell中执行该命令。
+进入root shell很简单，输入sudo bash确认本用户的密码即可（如果/etc/sudoers里配置了无密码使用sudo，就不需要进入密码），此时你会发现命令提示符显示当前root。一旦获得root shell，你就可以执行任何命令而不需要在每条命令前输入sudo了。
 
 [xxx@server-7f350f25-62e5-4f3c-a6cc-a60a89439573 ~]$ sudo bash	//或者sudo su - 或者 sudo -s，其实就是用sudo命令从当前用户切换到root用户
 
@@ -160,16 +84,6 @@ systemctl disable firewalld.service #禁止防火墙开机启动
 
 
 
-
-
-
-
-
-
-
-
-
-
 *mysql相关：
 service mysqld status #查看MySQL服务启动状态
 service mysql start #启动mysql
@@ -179,6 +93,8 @@ mysql -u"xxx" -p #登录mysql，切换至mysql命令
 清表操作如果执行的是delete，则主键不会重置，再插入的记录会在之前最大的主键值基础上自增
 此时如果主键长度设置达到限制则无法插入数据，若需要重置，使用truncate
 
+*关于多表连接：
+如果两张表关联字段的字符集不同，则在进行联表查询时不会走索引（如果有的话）
 
 
 *关于分页（limit和offset用法）：
@@ -197,6 +113,22 @@ mysql -u"xxx" -p #登录mysql，切换至mysql命令
 当 limit和offset组合使用的时候，limit后面只能有一个参数，表示要取的的数量，offset表示要跳过的数量
 
 例如 select * from article LIMIT 3 OFFSET 1 表示跳过1条数据，从第2条数据开始取，取3条数据，也就是取2,3,4三条数据
+
+*一段时间内按时间粒度（eg：天/小时/分钟）的聚合查询（空行不返回）：
+        select
+--             DATE_FORMAT(tci.CREATE_TIME, '%Y-%m-%d') as `aggDateTime` ,//按每一天
+--             HOUR(tci.CREATE_TIME) as `aggDateTime`,//按每小时（24）
+			DATE_FORMAT(concat(DATE(CREATE_TIME), ' ', HOUR(CREATE_TIME), ':', FLOOR(MINUTE(CREATE_TIME) / 10) * 10), '%Y-%m-%d %H:%i') as `aggDateTime`,//按每（此处为10）分钟
+			ROUND(AVG(TRAFFIC_INDEX), 2) as avgIdx,
+			AVG (REAL_SPEED) as avgSpeed,
+			AVG (FREE_FLOW_SPEED) as avgFreeFlowSpeed
+        from ts_congestion_index as tci
+        where tci.CREATE_TIME between DATE_FORMAT('2020-04-01', '%Y-%m-%d %T')
+        and DATE_FORMAT(DATE_ADD('2020-04-03',INTERVAL 1 DAY), '%Y-%m-%d %T')
+        and TRAFFIC_ID = '500112'
+        group by `aggDateTime`
+        order by `aggDateTime` asc ;
+
 
 
 *oracle相关：
@@ -257,11 +189,6 @@ sqlplus /nolog #进入sqlplus命令，即打开sqlplus但未连接oracle
 
 
 
-*java问题相关：
-1.@Scheduled注解不生效：如果其参数为cron表达式或者fixedRate则在其所在类上加上@EnableScheduling，否则尝试将参数换为fixedDelay;
-
-
-
 *git相关：
 git config --global -l #查看全局用户名、邮箱信息
 git config --global user.name 'xxx' #设置全局用户名
@@ -300,3 +227,281 @@ git stash save 'xxx' #将所有未提交的修改移入本地暂存，并记录m
 git stash list #查看所有stash
 git stash pop #恢复（默认第一个）stash，即stash@{0}。依次类推第二个：git stash pop stash@{1}
 git stash drop #删除（默认第一个）stash
+
+
+
+*node.js相关：
+	
+1.npm可使用国内阿里的源来替代默认国外的源：
+	npm install -g cnpm --registry=https://registry.npm.taobao.org	*注1
+继而使用cnpm(中国版npm)替代npm执行命令；
+
+2.也可使用yarn替代npm（更快）:
+	npm install -g yarn --registry=https://registry.npm.taobao.org
+	或者
+	npm install -g yarn（如果执行过注1或者注2则执行这一句就够了）
+	yarn config set registry https://registry.npm.taobao.org -g
+	yarn config set sass_binary_site http://cdn.npm.taobao.org/dist/node-sass -g
+	
+常用命令对比：
+NPM							YAR
+npm init					yarn init				初始化				
+npm install					yarn install            默认安装依赖		
+npm install xxxx -save		yarn add xxxx           安装某个依赖并保存
+npm install -g xxxx			yarn global add xxxx    安装全局依赖		
+npm uninstall xxxx -save	yarn remove xxxx        移除依赖			
+npm update 					yarn upgrade xxxx       更新依赖			
+npm run						yarn run                运行指令			
+
+
+3.使用cnpm/npm config ls查看配置信息，
+可查看使用的哪个源，如果要切换源可使用
+	cnpm/npm set registry https://registry.npm.taobao.org/ -g	*注2
+也可以使用源管理器nrm:
+	cnpm/npm i nrm -g
+	等同于
+	cnpm/npm install -g nrm
+
+nrm ls #查看可选源下载路径(带*即为当前使用源)
+nrm current #查看当前使用包
+nrm use "registryName" #切换源
+nrm add "registryName" "url" #添加源
+nrm del "registryName" #删除源
+nrm test "registryName" #测试源速度
+
+*注：执行命令报错则打开nrm安装路径（\node_global\node_modules\nrm）下的cli.js文件做如下改动：
+//const NRMRC = path.join(process.env.HOME, '.nrmrc'); (删除)
+const NRMRC = path.join(process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'], '.nrmrc');
+
+
+
+*vue相关：
+1.控制显隐的v-if与v-show：一般来说，v-if有更高的切换消耗，而v-show有更高的初始渲染消耗。因此，如果需要频繁切换，则使用v-show更好
+
+	v-if：支持<template>语法，可以根据表达式的值在DOM中生成或移除一个元素。
+	（注意：加了v-if的组件可能无法获取到渲染宽高）
+	v-show：不支持<template>语法，可以根据表达式的值来显示或者隐藏HTML元素。当v-show赋值为false时，元素被隐藏，此时查看代码时，该元素上会多一个内联样式style=“display:none”。
+
+2.注意dom元素的class类名不要与绑定的变量/方法名相同，可能导致无效。
+
+3.tips:如有须一次请求后台较大数据做展示的情况，考虑前端伪分页，将渲染数据与全数据分开，避免数据加载有延时。
+
+
+
+*综合问题相关：
+
+	*mvn清理命令：for /r %i in (*.lastUpdated) do del %i
+
+	*idea清除缓存文件：删除C:\Users\xxx\.IntelliJIdeaxxxx.x\system下的caches文件夹
+
+	*gradle调用maven离线仓库：
+		1、配置build.gradle：
+				repositories {
+					mavenLocal() //直接使用本地maven仓库
+					maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
+				}
+		2、使用mavenLocal() 时Gradle默认会按以下顺序去查找本地的maven仓库：
+			${USER_HOME}/.m2/settings.xml >> M2_HOME/conf/settings.xml >> ${USER_HOME}/.m2/repository
+			（注意，maven环境变量要加入M2_HOME， 配置环境变量时很多时候都是只配置MAVEN_HOME或者直接在path中加入bin路径了，导致mavenLocal无法生效）
+		3、如果本地没有相关jar包，gradle会下载到${USER_HOME}/.gradle文件夹下，若想让gradle下载到指定文件夹，配置GRADLE_USER_HOME环境变量。
+
+1.@Scheduled注解不生效：如果其参数为cron表达式或者fixedRate则在其所在类上加上@EnableScheduling，否则尝试将参数换为fixedDelay;
+
+2.针对使用mybatis传入参数含/为数组时出现"Data truncation: Truncated incorrect DOUBLE value"错误：
+	<foreach collection="遍历对象名" item="item" ...>标签中，不能用参数#{遍历对象名}，应使用#{item};
+	
+3.@ComponentScan 如果不设置basePackage的话 默认会扫描包的所有类，如果设置了basePackage的话，只会扫描设置路径下的包。从而导致原来项目模块中的包并不会被扫描到。
+正式生产场景不推荐扫描所有的包，而是应该将所有需要扫描的包全部写上去。
+@ComponentScan(basePackages = {})填String数组或者用逗号隔开的String 都可以。
+
+4.jmm（java内存模型）规定所有变量都储存于主内存中，每条线程都有自己的工作内存/本地内存/栈内存，对变量的操作只能在各自的工作内存中进行，之后将该变化同步刷新回主内存。
+  若有多线程下变量改变仍然读到旧值带来的可见性问题，可采取对变量使用锁机制或Volatile关键字：
+	1.变量改变即刷新回主存，保证不同线程对变量（主内存中共享变量的副本）操作的立即可见；
+	2.禁止（通过内存屏障）jvm对指令进行重排序，即使无法确定操作之间的顺序，保证写操作先行于读操作。
+  Volatile关键字原理：其修饰的变量在写操作时多出了Lock的指令，1.将当前缓存行的数据写回到系统内存；2.写回内存的操作会让其他缓存有该变量内存地址的数据无效。
+
+5.多线程的三特性：
+	原子性：一个线程的操作完成之前不会被其他线程干扰，成败一致。
+	有序性：程序执行按照一定顺序（通常为代码的先后顺序），无法保证happens-before（先天顺序）原则的，jvm可对其重排。
+	可见性：一个线程对共享变量（加锁）的改变，其他线程可以立即知晓。
+
+6.缓存一致性：当多个处理器核心同时在对一个共享变量存在读写操作时，处理器核心通过嗅探总线上传播的数据（是否被修改）来决定自己缓存的数据是否失效，失效即重新从主存中读取并缓存数据。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
