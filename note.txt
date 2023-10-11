@@ -195,14 +195,20 @@ git config --global user.name 'xxx' #设置全局用户名
 git config --global user.email 'xxx' #设置全局邮箱
 git config --unset --global user.name #删除全局用户名
 git config --unset --global user.email #删除全局邮箱
+git clone 远程仓库地址 #克隆远程仓库（clone是复合操作，包含init，remote，checkout，fetch等操作，自动创建 .git文件夹和 origin远程地址别名）
 git init #将当前目录初始化为一个本地仓库
 git status #查看本地文件状态
 git remote add 远程仓库名 远程仓库地址 #命名远程仓库并指定地址
 git remote -v #查看远程仓库地址
 git remote rm 远程仓库名 #删除指定的远程仓库 
 git remote rename 原仓库名 新仓库名 #重命名远程仓库
-git pull 远程仓库名 分支名 #拉取远程分支
+git branch 分支名 #新建一个分支
+git branch -d 分支名 #删除已有分支
+git checkout 分支名 #切换到已有分支
+git checkout -b 分支名 #新建一个分支并切换到该分支上
 git fetch 远程仓库名 分支名 #拉取远程分支（不主动merge）
+git merge 分支名 #（将该分支（前提是当前已经切换到另一分支）合并到另一分支）
+git pull 远程仓库名 分支名 #拉取远程分支
 git add 文件名 #将需要提交的文件（一次多文件用空格隔开）添加到git仓库（加入git管理）
 git add . #添加所有有变化的文件到git仓库
 git commit -m 'xxx' #提交备注
@@ -218,11 +224,6 @@ git push 远程仓库名 分支名 #提交到远程分支
 git push -u 远程仓库名 分支名 #指定默认/绑定远程分支，这样后面就可以不加任何参数使用git操作（-u是设置上游（upstream））
 git push -u -f 远程仓库名 分支名 #强制提交到远程仓库（-f是强制，强制提交会覆盖之前所有内容）
 git log #查看提交记录
-git branch 分支名 #新建一个分支
-git checkout 分支名 #切换到已有分支
-git merge 分支名 #（将该分支（前提是当前已经切换到另一分支）合并到另一分支）
-git checkout -b 分支名 #新建一个分支并切换到该分支上
-git branch -d 分支名 #删除已有分支
 git stash save 'xxx' #将所有未提交的修改移入本地暂存，并记录msg
 git stash list #查看所有stash
 git stash pop #恢复（默认第一个）stash，即stash@{0}。依次类推第二个：git stash pop stash@{1}
@@ -289,6 +290,8 @@ const NRMRC = path.join(process.env[(process.platform == 'win32') ? 'USERPROFILE
 
 
 *综合问题相关：
+
+	*windows解决hosts文件丢失（管理员权限打开cmd执行）：for /f %P in ('dir %windir%\WinSxS\hosts /b /s') do copy %P %windir%\System32\drivers\etc & echo %P & Notepad %P
 
 	*mvn清理命令：for /r %i in (*.lastUpdated) do del %i
 
