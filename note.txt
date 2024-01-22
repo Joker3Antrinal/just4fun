@@ -1,5 +1,10 @@
 *常用linux命令：
 
+mkdir -p "/xxx/xxx/xxx/" #创建目录（参数-p：一并创建中间缺省的父级目录）
+rpm -qa|grep "xxx" #查看是否已安装某个程序
+sudo yum install -y redhat-lsb #安装lsb命令（参数-y：一步到位安装，跳过确认步骤）
+lsb_release -a #查看linux系统信息（或hostnamectl）
+
 pwd #显示当前工作目录
 pwd -P #显示当前工作目录的物理位置
 
@@ -29,6 +34,8 @@ sudo: cd: command not found
 
 ls -la #查看当前目录下的所有文件（包含隐藏文件）的详细信息
 
+chown -R "user":"group" "dir/file" #更改目录或文件的所有者（owner）以及所属组（group）(-R表示递归地更改目录及其下所有子目录和文件的所有权和组归属）
+
 chmod "code" "文件名" #给文件赋权
 
 *操作文件或目录的用户，有3种不同类型：文件所有者、群组用户、其他用户。最高位表示文件所有者的权限值，中间位表示群组用户的权限值，最低位则表示其他用户的权限值，所以，chmod 777中，三个数字7分别对应上面三种用户，权限值都为7。
@@ -48,7 +55,7 @@ x	1	00000001	execute，执行。当前用户可以执行文件，当前用户可
 
 *source filename 与 sh filename 及./filename执行脚本的区别：
 当shell脚本具有可执行权限时，用sh filename与./filename执行脚本没有区别。
-./filename是因为当前目录没有在PATH中，所有”.”是用来表示当前目录的。
+./filename是因为当前目录没有在PATH中，所以”.”是用来表示当前目录的。
 sh filename 重新建立一个子shell，在子shell中执行脚本里面的语句，该子shell继承父shell的环境变量，但子shell新建的、改变的变量不会被带回父shell，除非使用export。
 source filename：这个命令其实只是简单地读取脚本里面的语句依次在当前shell里面执行，没有建立新的子shell。那么脚本里面所有新建、改变变量的语句都会保存在当前shell里面。
 
@@ -59,6 +66,7 @@ pidof "进程名" #显示进程号说明该进程已启动，否则未启动"
 lsof -i:"pid" #查看端口占用
 lsof -i|grep "pid" #根据pid查看端口
 netstat -nap|grep "pid" #根据pid查看端口
+netstat -tunpl|grep "port" #根据端口查看进程
 ps -ef|grep "进程名" #显示正在工作的进程
 kill %"jobnumber" #根据job号杀掉进程
 kill "pid" #根据进程号杀掉进程
@@ -66,6 +74,7 @@ kill -9 "pid" #彻底杀掉进程
 
 whereis xxx #查看安装路径
 which xxx #查看运行路径
+
 
 
 ctrl+c #终止当前进程
@@ -76,18 +85,58 @@ ctrl+r #搜索之前执行过的命令
 ctrl+z #将当前进程转到后台挂起(进程暂停)
 
 nohup ./"命令行" -b "ip地址" & #将进程放到后台运行（如果ip为0.0.0.0则表示所有IP都可访问该服务）
-
+systemctl list-dependencies "xxx".service #显示服务的启动和停止依赖关系
 
 firewall-cmd --state #查看防火墙状态
+systemctl start firewalld.service #开启防火墙
 systemctl stop firewalld.service #停止防火墙
+systemctl restart firewalld.service #重启防火墙
 systemctl disable firewalld.service #禁止防火墙开机启动
+firewall-cmd --query-port=端口号/tcp #查看指定端口是否放行
+firewall-cmd --zone=public --add-port=端口号/tcp --permanent #永久开放指定端口
+firewall-cmd --reload #重载防火墙配置
 
+
+*关于启动相关新旧指令对比：
+任务 | 旧指令 | 新指令
+#使某服务自动启动 | chkconfig –-level 3 "xxx" on | systemctl enable "xxx".service
+#使某服务不自动启动 | chkconfig –-level 3 "xxx" off | systemctl disable "xxx".service
+#显示所有已启动的服务 | chkconfig –-list | systemctl list-units -–type service
+#检查服务状态 | service "xxx" status | systemctl status "xxx".service
+#启动某服务 | service "xxx" start | systemctl start "xxx".service
+#停止某服务 | service "xxx" stop | systemctl stop "xxx".service
+#重启某服务 | service "xxx" restart | systemctl restart "xxx".service
 
 
 *mysql相关：
 service mysqld status #查看MySQL服务启动状态
 service mysql start #启动mysql
-mysql -u"xxx" -p #登录mysql，切换至mysql命令
+mysql -u"xxx" -p #本地以xxx账户登录mysql，切换至mysql命令
+mysql -h主机地址 -u用户名 -p用户密码 #远程登录其他主机地址上的mysql
+
+*关于解决”ERROR 1045 (28000): Access denied for user ''@'localhost' (using passwor)问题“：
+	1.在全局配置文件（如my.cnf）中[mysqld]栏下添加skip-grant-tables、skip-name-resolve项，并重启mysql服务；
+	2.使用mysql登录命令，无视输入密码提示，直接回车确认进入mysql命令界面；
+	3.切换到mysql用户/库（use mysql;），设置root密码为空：update user set authentication_string='' where user='root';
+	4.退出mysql，重启mysql服务；
+	5.登录mysql，刷新权限：flush privileges;
+	6.更新密码：alter user 'root'@'localhost' identified by '新密码';
+	7.刷新权限，退出mysql，重启mysql；
+	8.登录mysql，使用新密码，进入mysql用户/库并删除匿名账户：delete from user where user='';
+	9.删除[mysqld]栏下添加的skip-grant-tables、skip-name-resolve项并保存退出。
+ 
+*更新密码：
+	1.use mysql;
+	2.update user set password=PASSWORD('新密码') where user='用户名';
+	3.flush privileges; #更新权限
+
+*授权远程访问：
+	grant all privileges on 数据库.* to '用户名'@'IP地址（%代表所有）' identified by '密码'; #细化到库
+	#账号全授权：
+	1.use mysql; 
+	2.update user set host = '%' where user = 'root';
+	3.flush privileges;
+	4.grant all privileges on * to 'root'@'%' with grant option;
 
 *关于主键自增：
 清表操作如果执行的是delete，则主键不会重置，再插入的记录会在之前最大的主键值基础上自增
