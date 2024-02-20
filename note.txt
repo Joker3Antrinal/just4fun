@@ -281,7 +281,12 @@ git stash drop #删除（默认第一个）stash
 
 
 *node.js相关：
-	
+
+注：
+1.阿里镜像源已替换为：https://registry.npmmirror.com
+2.配置信息文件：C:\Users\{账户}\下的.npmrc文件
+3.清除缓存：npm cache verify，慎用npm cache clean --force
+
 1.npm可使用国内阿里的源来替代默认国外的源：
 	npm install -g cnpm --registry=https://registry.npm.taobao.org	*注1
 继而使用cnpm(中国版npm)替代npm执行命令；
@@ -304,9 +309,13 @@ npm update 					yarn upgrade xxxx       更新依赖
 npm run						yarn run                运行指令			
 
 
-3.使用cnpm/npm config ls查看配置信息，
-可查看使用的哪个源，如果要切换源可使用
+3.查看配置信息：
+	cnpm/npm config ls -l（加上-l参数为详细信息）
+如果要设置/切换源可使用
 	cnpm/npm set registry https://registry.npm.taobao.org/ -g	*注2
+查看源
+	cnpm/npm config get registry
+
 也可以使用源管理器nrm:
 	cnpm/npm i nrm -g
 	等同于
